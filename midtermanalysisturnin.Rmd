@@ -1,0 +1,115 @@
+---
+title: "midtermanalysisturnin"
+author: "Michael Guel"
+date: "10/30/2022"
+output:
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(readxl)
+library(dplyr)
+library(ggplot2)
+library(lubridate)
+
+setwd("C:/Users/Owner/OneDrive/Desktop/ITM881")
+
+### LOADING DATA
+
+data1 = read_xlsx('latestDataser-MNWild-FBData-with Sentiment.xlsx', sheet = "postslikescomments")
+  
+
+data2 = read_xlsx('datasetForStudentsMNWildCase.xlsx', sheet = "Sheet1")
+
+merge = colnames(data1[colnames(data1)%in%colnames(data2)])
+
+### MERGE AND PREPROCESSING 
+
+data= merge(data1,data2,by=c(merge))
+
+
+data = data[,!(colnames(data)%in% c("unique comment count","commentscount","negativecomments","positivecomments","neutralcomments","Likes type"))]
+
+data = data %>% mutate(hour = hour(created_time))
+
+data = data %>% mutate(timeofday = ifelse(hour >= 5 & hour < 12,"Morning",ifelse(hour >= 12 & hour < 17, "Afternoon", ifelse(hour >= 17 & hour < 21,"Evening",ifelse(hour >= 21 | hour <5,"Night",0)))))
+
+data$created_time = as.POSIXct(data$created_time)
+
+data = data %>% mutate(going = ifelse(created_time < as.POSIXct('2011-12-22 18:00:00'),"good","bad"))
+
+
+### MEASURING ENGAGEMENT
+
+### QUESTION 2
+
+ratiotofindweight = data %>% summarise(comments = sum(`comment count`),likes = sum(`likes count`))
+
+ratiotouse = ratiotofindweight$likes[1]/ratiotofindweight$comments[1]
+
+data = data %>% mutate(commentengagement = `comment count`*ratiotouse)
+
+data = data %>% mutate(totengagement = commentengagement+`likes count`)
+
+### ENGAGEMENT FOR POST TYPE
+
+### QUESION 2
+
+engagementperpost = data %>% group_by(`post type (text-1/link-2/video-3/photo-4)`) %>% summarise(engagement = sum(totengagement)/n())
+
+engagementperpost
+
+### ENGAGEMENT FOR TIME OF DAY
+
+### QUESTION 2
+
+timeofdayengagement = data %>% group_by(timeofday) %>% summarise(engagement = sum(totengagement)/n())
+
+timeofdayengagement
+
+### TOP 20 FANS DRIVING MAXIMUM ENGAGEMENT
+
+### QUESTION 3
+
+top20fans = data %>% group_by(userid,username) %>% summarise(toteng = sum(totengagement)/n()) %>% ungroup
+
+top20fans = top20fans %>% arrange(desc(toteng)) %>% slice(1:21)
+
+top20fans
+
+toput = data.frame(top20fans$username)
+
+### ENGAGEMENT FOR POSTED TIME
+
+### QUESTION 4
+
+engagementperpostedtime = data %>% group_by(`posted time(pre-game-1/during-game-2/post-game-3)`) %>% summarise(engagement = sum(totengagement)/n())
+
+engagementperpostedtime
+
+### ENGAGEMENT FOR WHEN GOING IS GOOD VS BAD (MEASURE OF GOOD IF THE TEAM RECORD IS WINNING OR EVEN, ELSE BAD)
+
+### QUESTION 5
+
+engagementwhengoodandbad = data %>% group_by(going) %>% summarise(engagement = sum(totengagement)/n())
+
+engagementwhengoodandbad
+
+### ENGAGEMENT ON MORE GRANULAR LEVEL FOR POST TYPE/ POSTED TIME and POST TYPE/ TIME OF DAY
+
+### EXTRA ANALYSIS
+
+engagementperpostperpostedtime = data %>% group_by(`post type (text-1/link-2/video-3/photo-4)`,`posted time(pre-game-1/during-game-2/post-game-3)`) %>% summarise(engagement = sum(totengagement)/n())
+
+engagementperpostperpostedtime
+
+engagementperpostpertimeofday = data %>% group_by(`post type (text-1/link-2/video-3/photo-4)`,timeofday) %>% summarise(engagement = sum(totengagement)/n())
+
+engagementperpostpertimeofday
+
+```
