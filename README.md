@@ -1,8 +1,8 @@
 # 📌 Project & Coursework Portfolio
 
-🎓: [Michael Guel]  
+🎓: Michael Guel
 📂: Machine Learning | AI | Data Science | Software Development  
-📧: [guelmich@msu.edu] | [https://www.linkedin.com/in/mikeguel/] | [Website]  
+📧: guelmich@msu.edu | https://www.linkedin.com/in/mikeguel/ | Website
 
 ---
 
