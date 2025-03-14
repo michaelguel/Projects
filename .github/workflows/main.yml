@@ -14,8 +14,8 @@ jobs:
       - name: Fetch source repo files
         run: |
           git clone --depth 1 https://github.com/michaelguel/EmotionCoreML.git temp-repo
-          mkdir -p project/projectsdirect/emotionrecognition  # Ensure target folder exists
-          cp -r temp-repo/. project/projectsdirect/emotionrecognition/
+          mkdir -p project/projectsdirect/EmotionRecognition  # Ensure target folder exists
+          cp -r temp-repo/. project/projectsdirect/EmotionRecognition/
           rm -rf temp-repo
 
       - name: Commit and Push Changes
@@ -23,7 +23,7 @@ jobs:
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
           git add .
-          git diff --cached --quiet || git commit -m "Copied files from EmotionCoreML into project/projectsdirect/emotionrecognition"
+          git diff --cached --quiet || git commit -m "Copied files from EmotionCoreML into project/projectsdirect/EmotionRecognition"
           git push origin main
 
 
